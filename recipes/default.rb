@@ -14,12 +14,28 @@ include_recipe "passenger_apache2"
 root = node["rails_application_server"]
 base_path = Pathname(root["base_path"])
 root["applications"].each do |name, c|
+  home_path = base_path + name
   user_name = name
+
   user user_name do
     comment "an user for #{name}"
-    home (base_path + name).to_s
+    home home_path.to_s
     password nil
     supports manage_home: true
+  end
+
+  ssh_path = home_path + ".ssh"
+  directory ssh_path.to_s do
+    owner user_name
+    mode 0700
+  end
+
+  file (ssh_path + "authorized_keys").to_s do
+    owner user_name
+    mode 0600
+    content c["deploy_keys"].map { |line|
+      line + "\n"
+    }.join
   end
 
   web_app name do
