@@ -38,6 +38,11 @@ root["applications"].each do |name, c|
     }.join
   end
 
+  rbenv_gem "bundler" do
+    rbenv_version c["ruby_version"]
+    action :install
+  end
+
   web_app name do
     docroot (base_path + name).expand_path
     server_name "#{name}.#{node[:domain]}"
