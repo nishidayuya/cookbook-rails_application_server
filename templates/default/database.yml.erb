@@ -1,0 +1,15 @@
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: <%= @name %>_test
+  pool: 5
+  username: <%= @database_user %>
+  password: <%= @database_password %>
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: <%= @name %>_production
+  pool: 5
+  username: <%= @database_user %>
+  password: <%= @database_password %>
