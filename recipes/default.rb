@@ -96,7 +96,7 @@ root["applications"].each do |name, c|
   end
 
   web_app name do
-    docroot (base_path + name).expand_path
+    docroot (home_path + "current" + "public").expand_path
     server_name "#{name}.#{node[:domain]}"
     ruby_bin_path = Pathname(node["rbenv"]["root_path"]) + "versions" +
       c["ruby_version"] + "bin" + "ruby"
