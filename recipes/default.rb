@@ -98,8 +98,9 @@ root["applications"].each do |name, c|
     end
   end
 
+  current_path = home_path + "current"
   web_app name do
-    docroot (home_path + "current" + "public").expand_path
+    docroot (current_path + "public").expand_path
     server_name c["server_name"] || "#{name}.#{node[:domain]}"
     ruby ruby_bin_path
   end
@@ -119,6 +120,15 @@ root["applications"].each do |name, c|
                 backups_path: backups_path,
                 database_yml_path: database_yml_path,
                 user_name: user_name,
+              })
+  end
+
+  template "logrotate.d" do
+    path "/etc/logrotate.d/#{name}"
+    mode 0644
+    source "logrotate.conf.erb"
+    variables({
+                current_path: current_path,
               })
   end
 end

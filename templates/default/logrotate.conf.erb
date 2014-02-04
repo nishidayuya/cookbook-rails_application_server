@@ -1,0 +1,14 @@
+<%= @current_path %>/log/production.log {
+  size 10M
+  missingok
+  rotate 7
+  notifempty
+  compress
+  compresscmd /usr/bin/xz
+  uncompresscmd /usr/bin/unxz
+  compressext .xz
+  compressoptions -9
+  postrotate
+    touch <%= @current_path %>/tmp/restart.txt
+  endscript
+}
