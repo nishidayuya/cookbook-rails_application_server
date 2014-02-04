@@ -1,0 +1,17 @@
+#! <%= @ruby %>
+
+require "pathname"
+require "yaml"
+
+user_name = "<%= @user_name %>"
+database_yml_path = Pathname("<%= @database_yml_path %>")
+backups_path = Pathname("<%= @backups_path %>")
+
+configurations = YAML.load_file(database_yml_path)
+c = configurations["production"]
+file_name = c["database"] + ".sql"
+file_path = backups_path + file_name
+
+system("sudo -H -u #{user_name} savelog -9 -q -J -t -m 640 #{file_path}")
+ENV["PGPASSWORD"] = c["password"]
+system("sudo -H -u #{user_name} pg_dump --host=#{c['host']} --port=#{c['port']} --username=#{c['username']} #{c['database']} > #{file_path}")

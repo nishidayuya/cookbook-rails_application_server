@@ -25,6 +25,8 @@ root["applications"].each do |name, c|
     username: "postgres",
     password: node["postgresql"]["password"]["postgres"],
   }
+  ruby_bin_path = Pathname(node["rbenv"]["root_path"]) + "versions" +
+    c["ruby_version"] + "bin" + "ruby"
 
   user user_name do
     comment "an user for #{name}"
@@ -64,8 +66,9 @@ root["applications"].each do |name, c|
     mode 0755
   end
 
+  database_yml_path = application_config_path + "database.yml"
   template "database.yml" do
-    path (application_config_path + "database.yml").to_s
+    path database_yml_path.to_s
     owner user_name
     mode 0600
     source "database.yml.erb"
@@ -98,9 +101,25 @@ root["applications"].each do |name, c|
   web_app name do
     docroot (home_path + "current" + "public").expand_path
     server_name c["server_name"] || "#{name}.#{node[:domain]}"
-    ruby_bin_path = Pathname(node["rbenv"]["root_path"]) + "versions" +
-      c["ruby_version"] + "bin" + "ruby"
     ruby ruby_bin_path
+  end
+
+  backups_path = home_path + "backups"
+  directory backups_path.to_s do
+    owner user_name
+    mode 0755
+  end
+
+  template "backup-db" do
+    path "/etc/cron.daily/backup-db-#{name}_production"
+    mode 0755
+    source "backup-db.erb"
+    variables({
+                ruby: ruby_bin_path,
+                backups_path: backups_path,
+                database_yml_path: database_yml_path,
+                user_name: user_name,
+              })
   end
 end
 
