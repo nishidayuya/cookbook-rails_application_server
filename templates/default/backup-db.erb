@@ -12,6 +12,7 @@ c = configurations["production"]
 file_name = c["database"] + ".sql"
 file_path = backups_path + file_name
 
-system("sudo -H -u #{user_name} savelog -9 -q -J -t -m 640 #{file_path}")
+sudo = Process.uid.zero? ? "sudo -H -u #{user_name}" : ""
+system("#{sudo} savelog -9 -q -J -t -m 640 #{file_path}")
 ENV["PGPASSWORD"] = c["password"]
-system("sudo -H -u #{user_name} pg_dump --host=#{c['host']} --port=#{c['port']} --username=#{c['username']} #{c['database']} > #{file_path}")
+system("#{sudo} pg_dump --host=#{c['host']} --port=#{c['port']} --username=#{c['username']} #{c['database']} > #{file_path}")
