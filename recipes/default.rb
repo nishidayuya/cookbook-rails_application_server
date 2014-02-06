@@ -85,6 +85,8 @@ root["applications"].each do |name, c|
     database d do
       provider Chef::Provider::Database::Postgresql
       connection database_server_connection_configuration
+      owner database_user_name
+      encoding "UTF8"
       action :create
     end
   end
