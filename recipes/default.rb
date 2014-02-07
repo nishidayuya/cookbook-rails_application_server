@@ -7,8 +7,6 @@
 # X11 License
 #
 
-include_recipe "ruby_build"
-include_recipe "rbenv::system"
 include_recipe "passenger_apache2"
 include_recipe "postgresql::server"
 include_recipe "database"
@@ -25,8 +23,6 @@ root["applications"].each do |name, c|
     username: "postgres",
     password: node["postgresql"]["password"]["postgres"],
   }
-  ruby_bin_path = Pathname(node["rbenv"]["root_path"]) + "versions" +
-    c["ruby_version"] + "bin" + "ruby"
 
   user user_name do
     comment "an user for #{name}"
@@ -47,11 +43,6 @@ root["applications"].each do |name, c|
     content c["deploy_keys"].map { |line|
       line + "\n"
     }.join
-  end
-
-  rbenv_gem "bundler" do
-    rbenv_version c["ruby_version"]
-    action :install
   end
 
   application_shared_path = home_path + "shared"
@@ -102,7 +93,7 @@ root["applications"].each do |name, c|
   web_app name do
     docroot (current_path + "public").expand_path
     server_name c["server_name"] || "#{name}.#{node[:domain]}"
-    ruby ruby_bin_path
+    ruby c["ruby_bin_path"]
   end
 
   backups_path = home_path + "backups"
@@ -116,7 +107,7 @@ root["applications"].each do |name, c|
     mode 0755
     source "backup-db.erb"
     variables({
-                ruby: ruby_bin_path,
+                ruby: c["ruby_bin_path"],
                 backups_path: backups_path,
                 database_yml_path: database_yml_path,
                 user_name: user_name,

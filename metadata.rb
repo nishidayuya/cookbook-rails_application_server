@@ -8,8 +8,6 @@ version          "0.1.0"
 
 recipe "rails_application_server", "Configures Rails application server"
 
-depends "ruby_build"
-depends "rbenv"
 depends "passenger"
 depends "passenger_apache2"
 depends "postgresql"
