@@ -27,8 +27,9 @@ root["applications"].each do |name, c|
   user user_name do
     comment "an user for #{name}"
     home home_path.to_s
-    password nil
+    password "*"
     supports manage_home: true
+    action :create
   end
 
   ssh_path = home_path + ".ssh"
