@@ -14,9 +14,11 @@ include_recipe "database::postgresql"
 
 root = node["rails_application_server"]
 base_path = Pathname(root["base_path"])
+user_names = []
 root["applications"].each do |name, c|
   home_path = base_path + name
-  user_name = name
+  user_name = c["user_name"] || name
+  user_names << user_name
   database_user_name = name
   database_server_connection_configuration = {
     host: "localhost",
@@ -128,6 +130,6 @@ root["applications"].each do |name, c|
 end
 
 group "rails-applications" do
-  members root["applications"].keys
+  members user_names
   action :create
 end
